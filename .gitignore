@@ -1,0 +1,23 @@
+# Fichiers objets et binaires
+*.o
+*.exe
+*.out
+*.dll
+*.so
+
+# Dossiers de build générés par CMake ou Make
+build/
+dist/
+CMakeFiles/
+cmake_install.cmake
+Makefile
+CMakeCache.txt
+
+# Fichiers temporaires
+*.log
+*.tmp
+*.swp
+
+# Fichiers spécifiques aux IDE
+.vscode/
+.idea/
