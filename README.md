@@ -127,7 +127,7 @@ Résultat final = 14.
 
 ## Dépendances
 
-- Langage C standard.
+- Langage C standard .
 - (Optionnel) Librairie mathématique (`-lm` sous Linux) pour les fonctions sin, cos, exp, etc.
 - (Optionnel) CMake pour la compilation. Sinon, un simple `gcc *.c -o calculatrice_RPN -lm` peut suffire, selon l’organisation des fichiers.
 
