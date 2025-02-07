@@ -21,9 +21,3 @@ add_executable(calculatrice_RPN
     src/token.c
     src/test.c
 )
-
-
-
-
-
-
