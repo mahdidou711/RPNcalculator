@@ -20,4 +20,5 @@ add_executable(calculatrice_RPN
     src/main.c
     src/token.c
     src/test.c
+    src/shunting_yard.c
 )

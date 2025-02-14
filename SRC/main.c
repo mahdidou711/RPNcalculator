@@ -3,35 +3,58 @@
 #include <string.h>
 #include "cutter.h"
 #include "eval.h"
+#include "shunting_yard.h"  // <-- A ajouter pour l'algo de conversion
 
 #define MAX_TOKENS 100
 #define MAX_INPUT_SIZE 256
 
 int main(void) {
-    system("cls");  // Efface l'écran sous Windows (utilise "clear" sous Linux/Mac si tu veux)
+    system("cls");  // Efface l'écran (sous Windows)
 
     char input[MAX_INPUT_SIZE];
     Token tokens[MAX_TOKENS];
+    double xValue = 0.0;
     
+    // 1) Demander le mode d'entrée : infix ou postfix
     printf("Calculatrice RPN\n");
-    printf("Entrez une expression en notation postfixee :\n> ");
+    printf("Choisissez le mode d'entree :\n");
+    printf("1. Notation Infixee (ex: (3+4)*2 )\n");
+    printf("2. Notation Postfixee (RPN) (ex: 3 4 + 2 *)\n");
+    printf("Votre choix (1 ou 2) : ");
     
+    int choix;
+    scanf("%d", &choix);
+    getchar(); // consommer le \n restant
+
+    // 2) Lire l'expression
+    printf("Entrez votre expression :\n> ");
     if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
         printf("Erreur de lecture.\n");
         return 1;
     }
-    
     // Supprimer le \n en fin de chaîne
     input[strcspn(input, "\n")] = '\0';
 
-    // Découper l'expression en tokens
+    // 3) Si choix = 1 => Convertir en RPN via Shunting-Yard
+    if (choix == 1) {
+        char tempOutput[MAX_INPUT_SIZE];
+        if (!convertToRPN(input, tempOutput, MAX_INPUT_SIZE)) {
+            printf("Erreur lors de la conversion en RPN.\n");
+            return 1;
+        }
+        printf("Expression convertie en RPN : %s\n", tempOutput);
+        // On remplace input par la version postfixée
+        strncpy(input, tempOutput, MAX_INPUT_SIZE);
+    }
+
+    // 4) Découper l'expression (postfixée) en tokens
     int tokenCount = tokenize(input, tokens, MAX_TOKENS);
     if (tokenCount == -1) {
         printf("Erreur lors de la tokenisation.\n");
         return 1;
     }
 
-    // Vérifier si l'expression contient la variable 'x'
+    // 5) Vérifier si l'expression contient la variable 'x'
     int hasVariable = 0;
     for (int i = 0; i < tokenCount; i++) {
         if (tokens[i].type == T_VARIABLE) {
@@ -40,8 +63,8 @@ int main(void) {
         }
     }
 
+    // 6) Si 'x' est présent, demander un intervalle et générer un fichier
     if (hasVariable) {
-        // Demander à l'utilisateur l'intervalle : x_min, x_max et le pas (step)
         double xMin, xMax, step;
         printf("Entrez l'intervalle pour x (x_min x_max step) : ");
         if (scanf("%lf %lf %lf", &xMin, &xMax, &step) != 3) {
@@ -49,28 +72,27 @@ int main(void) {
             return 1;
         }
 
-        // Ouvrir un fichier pour stocker les valeurs
         FILE *file = fopen("result.txt", "w");
         if (file == NULL) {
-            printf("Erreur : Impossible de créer le fichier result.txt\n");
+            printf("Erreur : Impossible de creer le fichier result.txt\n");
             return 1;
         }
 
-        // Écrire un en-tête dans le fichier
+        // Ecrire un en-tête
         fprintf(file, "x\tf(x)\n");
 
-        // Calculer f(x) pour chaque x de xMin à xMax
-        for (double xValue = xMin; xValue <= xMax; xValue += step) {
-            double result = evaluateRPN(tokens, tokenCount, xValue);
-            fprintf(file, "%.6lf\t%.6lf\n", xValue, result);
+        // Calculer f(x) pour chaque valeur dans [xMin, xMax]
+        for (double xv = xMin; xv <= xMax; xv += step) {
+            double result = evaluateRPN(tokens, tokenCount, xv);
+            fprintf(file, "%.6lf\t%.6lf\n", xv, result);
         }
 
         fclose(file);
         printf("Les valeurs ont ete enregistrees dans 'result.txt'.\n");
-        printf("Utilisez un logiciel de trace (ex: Gnuplot, Python, etc.) pour visualiser.\n");
-
-    } else {
-        // Si aucune variable 'x' n'est présente, on évalue directement l'expression
+        printf("Utilisez un logiciel de trace (Gnuplot, Python, etc.) pour visualiser.\n");
+    } 
+    // 7) Sinon, évaluation directe sans variable
+    else {
         double result = evaluateRPN(tokens, tokenCount, 0.0);
         printf("Resultat : %lf\n", result);
     }
