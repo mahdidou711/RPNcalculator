@@ -3,7 +3,7 @@
 #include <string.h>
 #include "cutter.h"
 #include "eval.h"
-#include "shunting_yard.h"  // <-- pour convertToRPN
+#include "shunting_yard.h"  // Pour convertToRPN
 
 #define MAX_TOKENS 100
 #define MAX_INPUT_SIZE 256
@@ -103,8 +103,21 @@ int main(void) {
             fclose(file);
             printf("Les valeurs ont ete enregistrees dans 'result.txt'.\n");
             printf("Utilisez un logiciel de trace (Gnuplot, Python, etc.) pour visualiser.\n");
+
+            // (7) Optionnel : proposer de lancer Gnuplot
+            printf("Voulez-vous tracer via Gnuplot ? (o/n) ");
+            char rep;
+            scanf(" %c", &rep);
+            getchar(); // consommer le \n
+
+            if (rep == 'o' || rep == 'O') {
+                // Commande gnuplot
+                // -p  : fenêtre persistante
+                // -e  : exécute la commande "plot 'result.txt' using 1:2 with lines"
+                system("gnuplot -p -e \"plot 'result.txt' using 1:2 with lines\"");
+            }
         } 
-        // (7) Sinon, évaluation directe sans variable
+        // (8) Sinon, évaluation directe sans variable
         else {
             // On met xValue = 0.0 ou n'importe quelle valeur
             // car l'expression n'utilise pas x
@@ -112,7 +125,7 @@ int main(void) {
             printf("Resultat : %lf\n", result);
         }
 
-        // (8) Voulez-vous continuer ?
+        // (9) Voulez-vous continuer ?
         printf("\nVoulez-vous calculer une nouvelle expression ? (o/n) ");
         char reponse;
         scanf(" %c", &reponse);

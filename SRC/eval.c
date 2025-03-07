@@ -1,11 +1,11 @@
 #include "eval.h"
-#include "stack.h"     // IMPORTANT : pour initStack, push, pop, freeStack
+#include "stack.h"     // Pour initStack, push, pop, freeStack
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
 
 double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
-    // On initialise la pile avec une capacité initiale de 100 (par exemple).
+    // Pile dynamique, capacité initiale = 100
     Stack s;
     initStack(&s, 100);
 
@@ -14,8 +14,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
 
         switch (tk.type) {
             case T_NUMBER: {
-                // Empile la valeur numérique
-                // (on pourrait vérifier si push() renvoie false => échec d'alloc)
+                // Empiler la valeur numérique
                 if (!push(&s, tk.numberValue)) {
                     printf("Erreur : Echec push (allocation?)\n");
                     freeStack(&s);
@@ -24,7 +23,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
             } break;
 
             case T_VARIABLE: {
-                // Empile la valeur de x
+                // Empiler la valeur de x
                 if (!push(&s, xValue)) {
                     printf("Erreur : Echec push (allocation?)\n");
                     freeStack(&s);
@@ -33,7 +32,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
             } break;
 
             case T_OPERATOR: {
-                // Vérifier : il faut 2 valeurs dans la pile
+                // On doit dépiler 2 valeurs
                 bool ok;
                 double b = pop(&s, &ok);
                 double a = pop(&s, &ok);
@@ -62,6 +61,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                         freeStack(&s);
                         return 0.0;
                 }
+
                 if (!push(&s, result)) {
                     printf("Erreur : Echec push (allocation?)\n");
                     freeStack(&s);
@@ -70,7 +70,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
             } break;
 
             case T_FUNCTION: {
-                // Il faut 1 valeur
+                // On doit dépiler 1 valeur
                 bool ok;
                 double val = pop(&s, &ok);
                 if (!ok) {
@@ -80,6 +80,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                 }
 
                 double result = 0.0;
+                // Ajout de nouvelles fonctions math :
                 if (strcmp(tk.functionName, "sin") == 0) {
                     result = sin(val);
                 } else if (strcmp(tk.functionName, "cos") == 0) {
@@ -93,6 +94,18 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                         return 0.0;
                     }
                     result = sqrt(val);
+                } else if (strcmp(tk.functionName, "tan") == 0) {
+                    result = tan(val);
+                } else if (strcmp(tk.functionName, "log") == 0) {
+                    result = log(val);     // log base e
+                } else if (strcmp(tk.functionName, "log10") == 0) {
+                    result = log10(val);   // log base 10
+                } else if (strcmp(tk.functionName, "fabs") == 0) {
+                    result = fabs(val);
+                } else if (strcmp(tk.functionName, "ceil") == 0) {
+                    result = ceil(val);
+                } else if (strcmp(tk.functionName, "floor") == 0) {
+                    result = floor(val);
                 } else {
                     printf("Erreur : Fonction inconnue '%s'\n", tk.functionName);
                     freeStack(&s);
@@ -113,7 +126,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
         }
     }
 
-    // Récupération du résultat final
+    // Récupérer le résultat final
     bool ok;
     double finalResult = pop(&s, &ok);
     if (!ok || !isEmpty(&s)) {
