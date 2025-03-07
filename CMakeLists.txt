@@ -13,12 +13,4 @@ include_directories(${CMAKE_SOURCE_DIR}/include)
 file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/src/*.c")
 
 # Crée l'exécutable à partir des sources récupérées
-add_executable(calculatrice_RPN
-    src/stack.c
-    src/Cutter.c
-    src/eval.c
-    src/main.c
-    src/token.c
-    src/test.c
-    src/shunting_yard.c
-)
+add_executable(calculatrice_RPN ${SOURCES})

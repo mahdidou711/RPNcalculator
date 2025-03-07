@@ -3,34 +3,46 @@
 #include <math.h>
 #include <string.h>
 
-/**
- * Fonction principale d'évaluation RPN.
- */
-double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
+double evaluateRPN_3var(Token tokens[], int tokenCount, 
+                        double xVal, double yVal, double zVal) 
+{
+    // On suppose que Stack s'est défini dans stack.h (pile dynamique).
+    // initStack(&s, 100) = par ex. capacité initiale 100.
     Stack s;
-    initStack(&s);
+    initStack(&s, 100);
 
     for (int i = 0; i < tokenCount; i++) {
         Token tk = tokens[i];
 
         switch (tk.type) {
-            case T_NUMBER:
-                // Si le token est un nombre, on l'empile.
+            case T_NUMBER: {
+                // On empile directement la valeur numérique
                 push(&s, tk.numberValue);
-                break;
+            } break;
 
-            case T_VARIABLE:
-                // Si le token est une variable 'x', on empile sa valeur actuelle.
-                push(&s, xValue);
-                break;
+            case T_VARIABLE: {
+                // On gère x, y, z
+                double val = 0.0;
+                switch (tk.variableName) {
+                    case 'x': val = xVal; break;
+                    case 'y': val = yVal; break;
+                    case 'z': val = zVal; break;
+                    default:
+                        printf("Erreur : Variable '%c' inconnue\n", tk.variableName);
+                        freeStack(&s);
+                        return 0.0;
+                }
+                push(&s, val);
+            } break;
 
             case T_OPERATOR: {
-                // Vérification : il faut au moins 2 valeurs pour un opérateur binaire
                 bool ok;
+                // On dépile 2 valeurs (b, puis a)
                 double b = pop(&s, &ok);
                 double a = pop(&s, &ok);
                 if (!ok) {
                     printf("Erreur : Pile vide avant un opérateur\n");
+                    freeStack(&s);
                     return 0.0;
                 }
 
@@ -42,6 +54,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                     case '/':
                         if (b == 0) {
                             printf("Erreur : Division par zéro\n");
+                            freeStack(&s);
                             return 0.0;
                         }
                         result = a / b;
@@ -49,17 +62,19 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                     case '^': result = pow(a, b); break;
                     default:
                         printf("Erreur : Opérateur inconnu '%c'\n", tk.operatorSymbol);
+                        freeStack(&s);
                         return 0.0;
                 }
                 push(&s, result);
             } break;
 
             case T_FUNCTION: {
-                // Vérification : il faut au moins 1 valeur pour une fonction
+                // On dépile 1 valeur
                 bool ok;
                 double val = pop(&s, &ok);
                 if (!ok) {
                     printf("Erreur : Pile vide avant application d'une fonction\n");
+                    freeStack(&s);
                     return 0.0;
                 }
 
@@ -73,11 +88,13 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
                 } else if (strcmp(tk.functionName, "sqrt") == 0) {
                     if (val < 0.0) {
                         printf("Erreur : Racine carrée d'un nombre négatif\n");
+                        freeStack(&s);
                         return 0.0;
                     }
                     result = sqrt(val);
                 } else {
                     printf("Erreur : Fonction inconnue '%s'\n", tk.functionName);
+                    freeStack(&s);
                     return 0.0;
                 }
                 push(&s, result);
@@ -85,6 +102,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
 
             default:
                 printf("Erreur : Token non reconnu\n");
+                freeStack(&s);
                 return 0.0;
         }
     }
@@ -94,8 +112,10 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
     double finalResult = pop(&s, &ok);
     if (!ok || !isEmpty(&s)) {
         printf("Erreur : Expression invalide (pile incorrecte)\n");
+        freeStack(&s);
         return 0.0;
     }
 
+    freeStack(&s);
     return finalResult;
 }

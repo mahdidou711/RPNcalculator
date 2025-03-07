@@ -28,9 +28,16 @@ int tokenize(const char *input, Token tokens[], int maxTokens) {
         }
         // Vérification si c'est une variable (ex. "x")
         else if (strlen(token) == 1 && isalpha(token[0])) {
-            tokens[tokenCount].type = T_VARIABLE;
-            tokens[tokenCount].variableName = token[0];
+            // On accepte uniquement 'x', 'y', 'z'
+            if (token[0] == 'x' || token[0] == 'y' || token[0] == 'z') {
+                tokens[tokenCount].type = T_VARIABLE;
+                tokens[tokenCount].variableName = token[0];
+            } else {
+                printf("Erreur : Variable '%c' non reconnue (seules x, y, z)\n", token[0]);
+                return -1;
+            }
         }
+        
         // Vérification si c'est un opérateur (ex. "+", "-", "*", "/")
         else if (strlen(token) == 1 && strchr("+-*/^", token[0])) {
             tokens[tokenCount].type = T_OPERATOR;

@@ -3,124 +3,91 @@
 #include <string.h>
 #include "cutter.h"
 #include "eval.h"
-#include "shunting_yard.h"  // <-- pour convertToRPN
+#include "shunting_yard.h"  // Pour convertToRPN
 
 #define MAX_TOKENS 100
 #define MAX_INPUT_SIZE 256
 
+// Pour simplifier, on déclare 3 variables globales
+double xVal = 0.0;
+double yVal = 0.0;
+double zVal = 0.0;
+
 int main(void) {
-
     while(1) {
-        system("cls");  // Efface l'écran (Windows) ; sous Linux/macOS : "clear"
+        system("cls");  // Efface l'écran (Windows). Sous Linux/macOS : "clear"
 
-        char input[MAX_INPUT_SIZE];
-        Token tokens[MAX_TOKENS];
-        double xValue = 0.0;
+        // (1) Demander la valeur de x, y, et z
+        printf("Entrez la valeur de x : ");
+        scanf("%lf", &xVal);
+        getchar(); // consomme le \n
 
-        // 1) Demander le mode d'entrée : infix ou postfix
+        printf("Entrez la valeur de y : ");
+        scanf("%lf", &yVal);
+        getchar();
+
+        printf("Entrez la valeur de z : ");
+        scanf("%lf", &zVal);
+        getchar();
+
+        // (2) Choix infix/postfix
         printf("Calculatrice RPN\n");
-        printf("Choisissez le mode d'entree :\n");
-        printf("1. Notation Infixee (ex: (3+4)*2 )\n");
+        printf("1. Notation Infixee (ex: (3+4)*2)\n");
         printf("2. Notation Postfixee (RPN) (ex: 3 4 + 2 *)\n");
         printf("Votre choix (1 ou 2) : ");
-
         int choix;
         if (scanf("%d", &choix) != 1) {
-            // Erreur de saisie
-            printf("Erreur de saisie pour le choix.\n");
-            // Consommer le \n
+            printf("Erreur de saisie.\n");
             getchar();
-            // On recommence la boucle
             continue;
         }
-        getchar(); // consommer le \n restant
+        getchar(); // consomme le \n
 
-        // 2) Lire l'expression
+        // (3) Lire l'expression
+        char input[MAX_INPUT_SIZE];
         printf("Entrez votre expression :\n> ");
         if (fgets(input, MAX_INPUT_SIZE, stdin) == NULL) {
             printf("Erreur de lecture.\n");
-            // On recommence la boucle
             continue;
         }
         // Supprimer le \n en fin de chaîne
         input[strcspn(input, "\n")] = '\0';
 
-        // 3) Si choix = 1 => Convertir en RPN via Shunting-Yard
+        // (4) Convertir en RPN si infix
         if (choix == 1) {
             char tempOutput[MAX_INPUT_SIZE];
             if (!convertToRPN(input, tempOutput, MAX_INPUT_SIZE)) {
-                printf("Erreur lors de la conversion en RPN.\n");
-                // On recommence la boucle
+                printf("Erreur de conversion en RPN.\n");
                 continue;
             }
             printf("Expression convertie en RPN : %s\n", tempOutput);
-            // On remplace input par la version postfixée
             strncpy(input, tempOutput, MAX_INPUT_SIZE);
         }
 
-        // 4) Découper l'expression (postfixée) en tokens
+        // (5) Tokenize
+        Token tokens[MAX_TOKENS];
         int tokenCount = tokenize(input, tokens, MAX_TOKENS);
         if (tokenCount == -1) {
-            printf("Erreur lors de la tokenisation.\n");
-            // On recommence la boucle
+            printf("Erreur de tokenisation.\n");
             continue;
         }
 
-        // 5) Vérifier si l'expression contient la variable 'x'
-        int hasVariable = 0;
-        for (int i = 0; i < tokenCount; i++) {
-            if (tokens[i].type == T_VARIABLE) {
-                hasVariable = 1;
-                break;
-            }
-        }
+        // (6) Évaluer en gérant x, y, z
+        // On appelle la fonction déclarée dans eval.h et définie dans eval.c
+        double result = evaluateRPN_3var(tokens, tokenCount, xVal, yVal, zVal);
 
-        // 6) Si 'x' est présent, demander un intervalle et générer un fichier
-        if (hasVariable) {
-            double xMin, xMax, step;
-            printf("Entrez l'intervalle pour x (x_min x_max step) : ");
-            if (scanf("%lf %lf %lf", &xMin, &xMax, &step) != 3) {
-                printf("Erreur de saisie (x_min, x_max, step).\n");
-                continue;
-            }
+        printf("Resultat : %lf\n", result);
 
-            FILE *file = fopen("result.txt", "w");
-            if (file == NULL) {
-                printf("Erreur : Impossible de creer le fichier result.txt\n");
-                continue;
-            }
-
-            // Ecrire un en-tête
-            fprintf(file, "x\tf(x)\n");
-
-            // Calculer f(x) pour chaque valeur dans [xMin, xMax]
-            for (double xv = xMin; xv <= xMax; xv += step) {
-                double result = evaluateRPN(tokens, tokenCount, xv);
-                fprintf(file, "%.6lf\t%.6lf\n", xv, result);
-            }
-
-            fclose(file);
-            printf("Les valeurs ont ete enregistrees dans 'result.txt'.\n");
-            printf("Utilisez un logiciel de trace (Gnuplot, Python, etc.) pour visualiser.\n");
-        } 
-        // 7) Sinon, évaluation directe sans variable
-        else {
-            double result = evaluateRPN(tokens, tokenCount, 0.0);
-            printf("Resultat : %lf\n", result);
-        }
-
-        // >>> ICI on demande si on veut continuer ou pas
+        // (7) Voulez-vous continuer ?
         printf("\nVoulez-vous calculer une nouvelle expression ? (o/n) ");
-        char reponse;
-        scanf(" %c", &reponse);
-        getchar(); // consommer le \n
-        if (reponse == 'n' || reponse == 'N') {
-            // On sort de la boucle => fin du programme
+        char rep;
+        scanf(" %c", &rep);
+        getchar();
+        if (rep == 'n' || rep == 'N') {
             break;
         }
     }
 
-    // On arrive ici si on a break
     printf("Fin du programme.\n");
     return 0;
 }

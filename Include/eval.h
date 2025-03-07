@@ -13,5 +13,8 @@
  * xValue    Valeur de la variable `x` (si présente dans l'expression).
  */
 double evaluateRPN(Token tokens[], int tokenCount, double xValue);
+double evaluateRPN_3var(Token tokens[], int tokenCount,
+    double xValue, double yValue, double zValue);
+
 
 #endif
