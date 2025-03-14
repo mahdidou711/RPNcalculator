@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
+double evaluateRPN(Token tokens[], int tokenCount, double xValue, double yValue) {
     // Pile dynamique, capacité initiale = 100
     Stack s;
     initStack(&s, 100);
@@ -13,6 +13,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
         Token tk = tokens[i];
 
         switch (tk.type) {
+
             case T_NUMBER: {
                 // Empiler la valeur numérique
                 if (!push(&s, tk.numberValue)) {
@@ -23,9 +24,21 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue) {
             } break;
 
             case T_VARIABLE: {
-                // Empiler la valeur de x
-                if (!push(&s, xValue)) {
-                    printf("Erreur : Echec push (allocation?)\n");
+                // Empiler la valeur associée à la variable
+                if (tk.variableName == 'x') {
+                    if (!push(&s, xValue)) {
+                        printf("Erreur : Echec push (allocation?)\n");
+                        freeStack(&s);
+                        return 0.0;
+                    }
+                } else if (tk.variableName == 'y') {
+                    if (!push(&s, yValue)) {
+                        printf("Erreur : Echec push (allocation?)\n");
+                        freeStack(&s);
+                        return 0.0;
+                    }
+                } else {
+                    printf("Erreur : Variable inconnue '%c'\n", tk.variableName);
                     freeStack(&s);
                     return 0.0;
                 }
