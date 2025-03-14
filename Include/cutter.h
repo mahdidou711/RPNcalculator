@@ -5,12 +5,13 @@
 #include <stdbool.h>
 
 /**
- * Découpe une chaîne d'entrée en tokens.
+ * Découpe une chaîne de caractères en une liste de tokens.
  *
- * input      Chaîne entrée par l'utilisateur (notation postfixée).
- * tokens     Tableau de tokens à remplir.
- * maxTokens  Taille maximale du tableau de tokens.
- * Nombre de tokens extraits, ou -1 en cas d'erreur.
+    * input     Chaîne entrée par l'utilisateur (souvent en notation postfixée).
+    * tokens    Tableau de tokens à remplir.
+    * maxTokens Taille maximale du tableau tokens.
+    *
+    * return Le nombre de tokens extraits, ou -1 en cas d'erreur (ex: trop de tokens).
  */
 int tokenize(const char *input, Token tokens[], int maxTokens);
 

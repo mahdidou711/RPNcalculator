@@ -3,10 +3,16 @@
 
 #include <stdbool.h>
 
-/*
- * Convertit l’expression infixée "infix" en notation postfixée (RPN).
- * stocke le résultat dans "output", qui doit avoir une taille maxOutputSize.
- * Renvoie true si la conversion a réussi, false en cas d’erreur.
+/**
+ * Convertit une expression infixée en notation postfixée (RPN) en utilisant l'algorithme du Shunting-Yard.
+
+        * infix         Chaîne représentant l'expression infixée (ex: "(3+4)*2").
+        * output        Buffer où sera stockée la notation postfixée résultante.
+        * maxOutputSize Taille maximale du buffer output.
+        *
+        * return true si la conversion a réussi, false en cas d'erreur (ex: parenthèses mal placées, dépassement de capacité, etc.).
+
+ * note L'expression postfixée générée est généralement terminée par un espace et un '\0'.
  */
 bool convertToRPN(const char *infix, char *output, int maxOutputSize);
 
