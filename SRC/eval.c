@@ -62,7 +62,7 @@ double evaluateRPN(Token tokens[], int tokenCount, double xValue, double yValue)
                     case '*': result = a * b; break;
                     case '/':
                         if (b == 0) {
-                            printf("Erreur : Division par zéro\n");
+                            printf("Erreur : Division par zero\n");
                             freeStack(&s);
                             return 0.0;
                         }
