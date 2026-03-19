@@ -1,147 +1,158 @@
-# Calculatrice RPN (Reverse Polish Notation)
+# RPN Calculator
 
-## Description du projet
+> A stack-based expression evaluator written in C — supports standard arithmetic, math functions, and single-variable plotting.
 
-Ce projet met en œuvre une calculatrice capable d’évaluer des expressions mathématiques écrites en notation postfixée (aussi appelée Reverse Polish Notation). Il se compose de plusieurs modules C qui gèrent :
+![Language](https://img.shields.io/badge/language-C99-blue?style=flat-square)
+![Build](https://img.shields.io/github/actions/workflow/status/mahdidou711/RPNcalculator/build.yml?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)
+![Commits](https://img.shields.io/github/commit-activity/t/mahdidou711/RPNcalculator?style=flat-square)
 
-- La lecture et la découpe de l’expression saisie par l’utilisateur (le parseur).
-- La gestion d’une pile pour les opérations intermédiaires.
-- L’évaluation de l’expression RPN grâce à la pile et aux fonctions mathématiques de base.
-- La gestion optionnelle d’une variable (souvent nommée x) afin de tracer ou de tabuler la fonction.
+---
 
-La notation postfixée présente l’avantage de ne pas nécessiter de parenthèses ni de gestion complexe de priorité. Une simple pile suffit pour évaluer l’expression dans l’ordre correct.
+## Overview
 
-## Fonctionnalités principales
+This project implements a [Reverse Polish Notation (RPN)](https://en.wikipedia.org/wiki/Reverse_Polish_notation) calculator in C. It also includes a **shunting-yard** module to accept standard infix expressions and convert them to postfix before evaluation.
 
-### Évaluation d’expressions RPN
+**Modules:**
 
-- Opérateurs binaires : +, -, *, /, ^
-- Fonctions mathématiques usuelles : sin, cos, exp, sqrt, ln, .
-- Gestion de la variable x (on peut lui attribuer une valeur lors de l’exécution).
+| File | Role |
+|------|------|
+| `stack.c` | Push/pop stack operations |
+| `token.c` | Token types: number, operator, function, variable |
+| `Cutter.c` | Lexer — splits input string into tokens |
+| `eval.c` | RPN evaluator — processes token list using the stack |
+| `shunting_yard.c` | Infix → postfix conversion (Dijkstra's algorithm) |
+| `main.c` | CLI entry point |
 
-### Saisie de l’expression
+---
 
-- L’utilisateur saisit directement une expression en notation postfixée (ex. 3 4 + 2 *).
-- Le cutteur identifie les nombres, les opérateurs, les variables, ou les fonctions.
+## Supported Operations
 
-### Affichage du résultat
+**Binary operators:** `+` `-` `*` `/` `^`
 
-- Une fois l’expression évaluée, la calculatrice affiche le résultat final.
+**Math functions:** `sin` `cos` `exp` `sqrt` `ln`
 
-### Option de traçage (extension)
+**Variable:** `x` — assign a value at runtime, or sweep over a range to generate plot data.
 
-- En parcourant différentes valeurs de x (par exemple de -10 à +10), on génère une suite de points (x, f(x)) dans un fichier texte.
-- Ces points peuvent ensuite être importés dans un logiciel de dessin de courbes (Gnuplot, Python, etc.).
+---
 
-## Comment utiliser cette calculatrice
+## Build
 
-### Configuration dans VS Code
+### Requirements
 
-1. Ouvre ton dossier de projet dans VS Code (menu File > Open Folder ou Ouvrir un dossier).
-2. Installe l’extension CMake Tools (et l’extension C/C++ si ce n’est pas déjà fait) :
-    - Dans VS Code, onglet Extensions (Ctrl + Shift + X), cherche “CMake Tools”.
-    - Installe également “C/C++” (Microsoft) si besoin pour la coloration syntaxique et l’autocomplétion.
-3. Dans la barre de statut (en bas), tu verras l’icône CMake et/ou un bouton “No Kit Selected” ou “Select a Kit”.
-    - Sélectionne un compilateur (par ex. GCC, Clang, ou MSVC selon ta plateforme).
-    - Clique ensuite sur “CMake: Configure” pour que CMake génère les fichiers de build dans un dossier (par défaut, build/).
+- CMake ≥ 3.10
+- GCC or Clang with C99 support
+- `libm` (standard on Linux/macOS)
 
-### Compilation via CMake Tools dans VS Code
+### Linux / macOS
 
-Une fois configuré :
+```bash
+mkdir build && cd build
+cmake ..
+cmake --build .
+./calculatrice_RPN
+```
 
-- Dans la barre de statut, clique sur Build (ou tape Ctrl + Shift + P puis choisis “CMake: Build”).
-- VS Code va exécuter la commande `cmake --build build --config Debug` (ou un équivalent) en arrière-plan.
-- Cela génère un exécutable (souvent nommé `calculatrice_RPN` sur Linux/macOS, ou `calculatrice_RPN.exe` sous Windows) dans le dossier de build (build/Debug ou build/Release, selon la configuration).
+### Windows (VS Code + CMake Tools)
 
+1. Install extensions: **CMake Tools** and **C/C++** (Microsoft).
+2. Open the project folder in VS Code.
+3. Select a kit (GCC via MinGW, or MSVC).
+4. Click **Build** in the status bar, or `Ctrl+Shift+P` → `CMake: Build`.
+5. Run the generated `calculatrice_RPN.exe` from the `build/` folder.
 
-### Exécution dans VS Code
+### Manual (no CMake)
 
-Certains kits/versions de l’extension CMake Tools proposent un bouton Run ou Debug dans la barre de statut, qui lance l’exécutable après le build.
+```bash
+gcc src/stack.c src/token.c src/Cutter.c src/eval.c src/shunting_yard.c src/main.c \
+    -Iinclude -lm -o calculatrice_RPN
+```
 
-### 3. Saisie d’une expression RPN
+---
 
-Le programme te demande de taper une expression en notation postfixée. Par exemple :
+## Usage
 
-```plaintext
+### RPN mode
+
+```
 Entrez une expression postfixee (ex: 3 4 + 2 *):
 > 3 4 + 2 *
-```
-
-Tu peux également saisir une variable x si ton expression en contient (ex. `x 2 ^ 3 +`).
-
-### 4. Entrer la valeur de x (optionnel)
-
-Si l’expression contient la variable x, le programme te demandera la valeur de x :
-
-```plaintext
-Entrez la valeur de x :
-> 2
-```
-
-### 5. Résultat
-
-Le programme calcule et affiche le résultat final de l’expression. Par exemple :
-
-```plaintext
 Résultat = 14
 ```
 
-### 6. Option de tracé (extension)
+Step-by-step for `3 4 + 2 *`:
 
-Si la fonctionnalité de traceur est activée dans le code, il peut te proposer de générer un fichier de données pour tracer la courbe f(x) en fonction de x :
+| Step | Token | Stack |
+|------|-------|-------|
+| 1 | `3` | [3] |
+| 2 | `4` | [3, 4] |
+| 3 | `+` | [7] |
+| 4 | `2` | [7, 2] |
+| 5 | `*` | [14] |
 
-- Il suffit d’indiquer un intervalle, un pas, etc.
-- Le programme produit un fichier texte (par exemple `result.txt`) contenant une liste de valeurs :
+### With variable x
 
-```plaintext
-x     f(x)
------------
--10   ...
--9.9  ...
- ...
- 10   ...
+```
+> x 2 ^ 3 +
+Entrez la valeur de x : 2
+Résultat = 7
 ```
 
-Tu peux ensuite utiliser un outil externe (Gnuplot, Python/Matplotlib, etc.) pour visualiser la courbe.
+### Plot mode (sweep over x)
 
-## Exemple d’utilisation
+If the expression contains `x`, the program can generate a data file for plotting:
 
-Expression : `3 4 + 2 *`
+```
+x     f(x)
+-10   97
+-9.9  101.01
+...
+10    103
+```
 
-- `3` → push(3)
-- `4` → push(4)
-- `+` → pop(4), pop(3), calcule 3+4=7, push(7)
-- `2` → push(2)
-- `*` → pop(2), pop(7), calcule 7*2=14, push(14)
+Import into Python/Matplotlib or Gnuplot to visualize.
 
-Résultat final = 14.
+---
 
-## Architecture du code
+## Project Structure
 
-- `stack.h` / `stack.c` : Gestion de la pile (push, pop, etc.).
-- `token.h` / `token.c` : Définition du type Token (nombre, opérateur, fonction, variable).
-- `parser.h` / `parser.c` : Découpage (lexing) de la chaîne en tokens (ex. 3 4 + → [3, 4, +]).
-- `eval.h` / `eval.c` : Évaluation RPN : parcours des tokens, utilisation de la pile, exécution des opérateurs/fonctions.
-- `main.c` : Interface console : saisie de l’expression, appel du parseur, appel de l’évaluateur, affichage du résultat.
-- (Optionnel) `plot.h` / `plot.c` : Génération d’un fichier texte pour tracer la fonction si la variable x est incluse.
+```
+RPNcalculator/
+├── include/
+│   ├── stack.h
+│   ├── token.h
+│   ├── parser.h
+│   └── eval.h
+├── SRC/
+│   ├── stack.c
+│   ├── token.c
+│   ├── Cutter.c
+│   ├── eval.c
+│   ├── shunting_yard.c
+│   └── main.c
+├── .github/
+│   └── workflows/
+│       └── build.yml
+├── CMakeLists.txt
+├── .gitignore
+└── LICENSE
+```
 
-## Dépendances
+---
 
-- Langage C standard .
-- (Optionnel) Librairie mathématique (`-lm` sous Linux) pour les fonctions sin, cos, exp, etc.
-- (Optionnel) CMake pour la compilation. Sinon, un simple `gcc *.c -o calculatrice_RPN -lm` peut suffire, selon l’organisation des fichiers.
+## Known Limitations
 
-## Limitations et pistes d’évolution
+- Only one variable (`x`) is supported.
+- No error recovery: malformed input may cause undefined behavior (planned: input validation).
+- No interactive history or readline support.
 
+---
 
-### Notation infixée
+## Author
 
-- Possibilité d’ajouter un module de conversion infix → postfix si on souhaite que l’utilisateur saisisse des expressions “normales” (ex. 3+4*2).
+**Bouama Mehdi** — M1 E3A-SATIE, Université Paris-Saclay  
+[github.com/mahdidou711](https://github.com/mahdidou711)
 
-### Plusieurs variables
+## License
 
-- Actuellement, seule la variable x est prévue. On pourrait gérer x, y, etc.
-
-## Contributeurs et licence
-
-Auteur : (mahdidou711)
+[MIT](LICENSE)
