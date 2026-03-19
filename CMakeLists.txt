@@ -21,3 +21,6 @@ add_executable(calculatrice_RPN
     SRC/token.c
     SRC/shunting_yard.c
 )
+
+# Link math library (required for pow, sin, cos, exp, log, etc.)
+target_link_libraries(calculatrice_RPN m)
