@@ -19,7 +19,7 @@ This project implements a [Reverse Polish Notation (RPN)](https://en.wikipedia.o
 |------|------|
 | `stack.c` | Push/pop stack operations |
 | `token.c` | Token types: number, operator, function, variable |
-| `Cutter.c` | Lexer — splits input string into tokens |
+| `cutter.c` | Lexer — splits input string into tokens |
 | `eval.c` | RPN evaluator — processes token list using the stack |
 | `shunting_yard.c` | Infix → postfix conversion (Dijkstra's algorithm) |
 | `main.c` | CLI entry point |
@@ -64,9 +64,11 @@ cmake --build .
 ### Manual (no CMake)
 
 ```bash
-gcc src/stack.c src/token.c src/Cutter.c src/eval.c src/shunting_yard.c src/main.c \
-    -Iinclude -lm -o calculatrice_RPN
+gcc SRC/stack.c SRC/token.c SRC/cutter.c SRC/eval.c SRC/shunting_yard.c SRC/main.c \
+    -IInclude -lm -o calculatrice_RPN
 ```
+
+GitHub Actions configures and builds the project with CMake on Ubuntu for pushes and pull requests targeting `main`.
 
 ---
 
@@ -74,7 +76,7 @@ gcc src/stack.c src/token.c src/Cutter.c src/eval.c src/shunting_yard.c src/main
 
 ### RPN mode
 
-```
+```text
 Entrez une expression postfixee (ex: 3 4 + 2 *):
 > 3 4 + 2 *
 Résultat = 14
@@ -92,7 +94,7 @@ Step-by-step for `3 4 + 2 *`:
 
 ### With variable x
 
-```
+```text
 > x 2 ^ 3 +
 Entrez la valeur de x : 2
 Résultat = 7
@@ -102,7 +104,7 @@ Résultat = 7
 
 If the expression contains `x`, the program can generate a data file for plotting:
 
-```
+```text
 x     f(x)
 -10   97
 -9.9  101.01
@@ -110,26 +112,27 @@ x     f(x)
 10    103
 ```
 
-Import into Python/Matplotlib or Gnuplot to visualize.
+Import the generated data into Python/Matplotlib or Gnuplot to visualize it.
 
 ---
 
 ## Project Structure
 
-```
+```text
 RPNcalculator/
-├── include/
+├── Include/
+│   ├── cutter.h
+│   ├── eval.h
+│   ├── shunting_yard.h
 │   ├── stack.h
-│   ├── token.h
-│   ├── parser.h
-│   └── eval.h
+│   └── token.h
 ├── SRC/
-│   ├── stack.c
-│   ├── token.c
-│   ├── Cutter.c
+│   ├── cutter.c
 │   ├── eval.c
+│   ├── main.c
 │   ├── shunting_yard.c
-│   └── main.c
+│   ├── stack.c
+│   └── token.c
 ├── .github/
 │   └── workflows/
 │       └── build.yml
@@ -143,14 +146,14 @@ RPNcalculator/
 ## Known Limitations
 
 - Only one variable (`x`) is supported.
-- No error recovery: malformed input may cause undefined behavior (planned: input validation).
+- No error recovery: malformed input may cause undefined behavior.
 - No interactive history or readline support.
 
 ---
 
 ## Author
 
-**Bouama Mehdi** — M1 E3A-SATIE, Université Paris-Saclay  
+**Mehdi Bouama**  
 [github.com/mahdidou711](https://github.com/mahdidou711)
 
 ## License
