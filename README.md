@@ -1,6 +1,6 @@
 # RPN Calculator
 
-> A stack-based expression evaluator written in C — supports standard arithmetic, math functions, and single-variable plotting.
+> A stack-based expression evaluator written in C — supports standard arithmetic, math functions, and generation of 1D/2D plot data.
 
 ![Language](https://img.shields.io/badge/language-C99-blue?style=flat-square)
 ![Build](https://img.shields.io/github/actions/workflow/status/mahdidou711/RPNcalculator/build.yml?style=flat-square)
@@ -30,9 +30,9 @@ This project implements a [Reverse Polish Notation (RPN)](https://en.wikipedia.o
 
 **Binary operators:** `+` `-` `*` `/` `^`
 
-**Math functions:** `sin` `cos` `exp` `sqrt` `ln`
+**Math functions:** `sin` `cos` `exp` `sqrt` `tan` `log` `log10` `fabs` `ceil` `floor`
 
-**Variable:** `x` — assign a value at runtime, or sweep over a range to generate plot data.
+**Variables:** `x` supports a 1D range sweep; `x` together with `y` supports a 2D range sweep. Results are written to `result.txt`. A standalone `y` sweep is not implemented.
 
 ---
 

@@ -21,3 +21,7 @@ CMakeCache.txt
 # Fichiers spécifiques aux IDE
 .vscode/
 .idea/
+
+# Local generated output
+/result.txt
+/calculatrice_RPN
